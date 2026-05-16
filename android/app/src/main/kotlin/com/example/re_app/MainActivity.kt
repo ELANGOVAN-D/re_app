@@ -53,12 +53,21 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        registerReceiver(musicReceiver, IntentFilter("com.example.re_app.MUSIC_UPDATE"))
+        val filter = IntentFilter("com.example.re_app.MUSIC_UPDATE")
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            registerReceiver(musicReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(musicReceiver, filter)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(musicReceiver)
+        try {
+            unregisterReceiver(musicReceiver)
+        } catch (e: Exception) {
+            // Already unregistered
+        }
     }
 
     private fun answerCall() {

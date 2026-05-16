@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'RE STEALTH BRIDGE',
+      title: 'STEALTH BRIDGE PRO',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -54,7 +54,7 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const RidesScreen(),
-    const TripPlannerScreen(), // NEW
+    const TripPlannerScreen(),
     const ToolsScreen(),
     const GarageScreen(),
   ];
@@ -66,19 +66,23 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   Future<void> _requestPermissions() async {
-    await [
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-      Permission.location,
-      Permission.phone,
-      Permission.notification,
-    ].request();
+    try {
+      await [
+        Permission.bluetoothScan,
+        Permission.bluetoothConnect,
+        Permission.location,
+        Permission.phone,
+        Permission.notification,
+      ].request();
+    } catch (e) {
+      debugPrint("Permission request failed: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (i) => setState(() => _selectedIndex = i),
@@ -110,12 +114,12 @@ class DashboardScreen extends StatelessWidget {
           backgroundColor: Colors.transparent,
           actions: [
             IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.settings_outlined)),
+            IconButton(onPressed: () => _showSettings(context), icon: const Icon(Icons.settings_outlined)),
           ],
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
               children: [
                 _buildSearchBar(context),
@@ -125,11 +129,52 @@ class DashboardScreen extends StatelessWidget {
                 _buildMusicPlayer(state),
                 const SizedBox(height: 20),
                 _buildQuickActions(context),
+                const SizedBox(height: 20),
               ],
             ),
           ),
         )
       ],
+    );
+  }
+
+  void _showSettings(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF121212),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('SYSTEM SETTINGS', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
+            const Divider(height: 32),
+            ListTile(leading: const Icon(Icons.bluetooth), title: const Text('Auto-Reconnect'), trailing: Switch(value: true, onChanged: (v) {})),
+            ListTile(leading: const Icon(Icons.vibration), title: const Text('Haptic Feedback'), trailing: Switch(value: true, onChanged: (v) {})),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Where to, Rider?',
+          prefixIcon: const Icon(Icons.search, color: Colors.redAccent),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 15),
+        ),
+        onSubmitted: (val) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Finding route to: $val...')));
+        },
+      ),
     );
   }
 
@@ -194,76 +239,30 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchBar(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Where to, Rider?',
-          prefixIcon: const Icon(Icons.search, color: Colors.redAccent),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 15),
-        ),
-        onSubmitted: (val) {
-          // Logic for Search
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Finding route to: $val...'))
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildQuickActions(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _QuickActionBtn(
-          icon: Icons.sos_rounded, 
-          label: 'SOS', 
-          color: Colors.red,
-          onTap: () => _handleSOS(context),
-        )),
+        Expanded(child: _QuickActionBtn(icon: Icons.sos_rounded, label: 'SOS', color: Colors.red, onTap: () => _handleSOS(context))),
         const SizedBox(width: 15),
-        Expanded(child: _QuickActionBtn(
-          icon: Icons.map_rounded, 
-          label: 'NEARBY', 
-          color: Colors.blue,
-          onTap: () => _launchNearby(context),
-        )),
+        Expanded(child: _QuickActionBtn(icon: Icons.map_rounded, label: 'NEARBY', color: Colors.blue, onTap: () => _launchNearby(context))),
         const SizedBox(width: 15),
-        Expanded(child: _QuickActionBtn(
-          icon: Icons.lightbulb_rounded, 
-          label: 'THEME', 
-          color: Colors.amber,
-          onTap: () => _toggleTheme(context),
-        )),
+        Expanded(child: _QuickActionBtn(icon: Icons.lightbulb_rounded, label: 'THEME', color: Colors.amber, onTap: () => _toggleTheme(context))),
       ],
     );
   }
 
   void _handleSOS(BuildContext context) async {
     final Uri url = Uri.parse('tel:112');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not launch SOS call')));
-    }
+    if (await canLaunchUrl(url)) await launchUrl(url);
   }
 
   void _launchNearby(BuildContext context) async {
     const url = 'https://www.google.com/maps/search/?api=1&query=petrol+pump+near+me';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    }
+    if (await canLaunchUrl(Uri.parse(url))) await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   void _toggleTheme(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Theme Customization Active: Stealth Black Mode'))
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Theme Customization Active: Stealth Mode')));
   }
 }
 
@@ -426,42 +425,57 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
   }
 }
 
-// --- SCREEN 3: TOOLS ---
+// --- SCREEN 4: TOOLS PRO ---
 class ToolsScreen extends StatelessWidget {
   const ToolsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        const SizedBox(height: 40),
-        const Text('RIDER TOOLS', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
-        _buildToolTile(Icons.cloud_outlined, 'Weather Forecast', 'Current: 28°C - Clear Skies'),
-        _buildToolTile(Icons.local_gas_station_rounded, 'Nearby Petrol', 'Closest: Shell (1.2 km)'),
-        _buildToolTile(Icons.coffee_rounded, 'Rider Cafes', 'Explore popular stops nearby'),
-        _buildToolTile(Icons.group_rounded, 'Group Ride', 'Create a live session with friends'),
-      ],
+    return Scaffold(
+      appBar: AppBar(title: const Text('RIDER TOOLS PRO', style: TextStyle(fontWeight: FontWeight.bold))),
+      body: GridView.count(
+        crossAxisCount: 2,
+        padding: const EdgeInsets.all(20),
+        mainAxisSpacing: 15,
+        crossAxisSpacing: 15,
+        children: [
+          _buildToolCard(context, Icons.local_gas_station, 'Fuel Calculator', Colors.orange, const FuelCalculatorScreen()),
+          _buildToolCard(context, Icons.cloud, 'Weather Pro', Colors.blue, null),
+          _buildToolCard(context, Icons.location_on, 'RE Service', Colors.redAccent, null),
+          _buildToolCard(context, Icons.group, 'Riding Clubs', Colors.purple, null),
+          _buildToolCard(context, Icons.history, 'Ride History', Colors.green, null),
+          _buildToolCard(context, Icons.help_outline, 'Support', Colors.grey, null),
+        ],
+      ),
     );
   }
 
-  Widget _buildToolTile(IconData icon, String title, String sub) {
-    return Card(
-      color: const Color(0xFF121212),
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.redAccent),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(sub, style: const TextStyle(fontSize: 12, color: Colors.white54)),
-        trailing: const Icon(Icons.chevron_right),
+  Widget _buildToolCard(BuildContext context, IconData icon, String label, Color color, Widget? target) {
+    return InkWell(
+      onTap: () {
+        if (target != null) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => target));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label Feature Coming Soon!')));
+        }
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        decoration: BoxDecoration(color: const Color(0xFF121212), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withOpacity(0.1))),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 40),
+            const SizedBox(height: 12),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          ],
+        ),
       ),
     );
   }
 }
 
-// --- SCREEN 4: GARAGE ---
+// --- SCREEN 5: GARAGE ---
 class GarageScreen extends StatelessWidget {
   const GarageScreen({super.key});
 
@@ -493,10 +507,7 @@ class GarageScreen extends StatelessWidget {
       decoration: BoxDecoration(color: const Color(0xFF1A1A1A), borderRadius: BorderRadius.circular(20)),
       child: Column(
         children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text('Next Service'), Text('750 / 5000 km')],
-          ),
+          const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Next Service'), Text('750 / 5000 km')]),
           const SizedBox(height: 10),
           const LinearProgressIndicator(value: 0.15, backgroundColor: Colors.white10, valueColor: AlwaysStoppedAnimation(Colors.redAccent)),
         ],
@@ -520,23 +531,61 @@ class GarageScreen extends StatelessWidget {
   }
 }
 
+// --- NEW FEATURE: FUEL CALCULATOR ---
+class FuelCalculatorScreen extends StatefulWidget {
+  const FuelCalculatorScreen({super.key});
+
+  @override
+  State<FuelCalculatorScreen> createState() => _FuelCalculatorScreenState();
+}
+
+class _FuelCalculatorScreenState extends State<FuelCalculatorScreen> {
+  double _dist = 100;
+  double _mileage = 35;
+  
+  @override
+  Widget build(BuildContext context) {
+    double fuelNeeded = _dist / _mileage;
+    return Scaffold(
+      appBar: AppBar(title: const Text('FUEL CALCULATOR')),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const Text('ESTIMATE YOUR RIDE', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 40),
+            Text('Distance: ${_dist.toInt()} km'),
+            Slider(value: _dist, min: 1, max: 1000, onChanged: (v) => setState(() => _dist = v)),
+            const SizedBox(height: 20),
+            Text('Bike Mileage: ${_mileage.toInt()} km/L'),
+            Slider(value: _mileage, min: 10, max: 60, onChanged: (v) => setState(() => _mileage = v)),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.all(30),
+              decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.redAccent)),
+              child: Column(
+                children: [
+                  const Text('FUEL NEEDED'),
+                  Text(fuelNeeded.toStringAsFixed(2), style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900)),
+                  const Text('LITERS'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // --- SHARED WIDGETS ---
 class _PulseIcon extends StatelessWidget {
   final bool isActive;
   const _PulseIcon({required this.isActive});
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 12, height: 12,
-      decoration: BoxDecoration(
-        color: isActive ? Colors.green : Colors.red,
-        shape: BoxShape.circle,
-        boxShadow: [
-          if (isActive) BoxShadow(color: Colors.green.withOpacity(0.5), blurRadius: 10, spreadRadius: 2)
-        ],
-      ),
-    );
+    return Container(width: 12, height: 12, decoration: BoxDecoration(color: isActive ? Colors.green : Colors.red, shape: BoxShape.circle, boxShadow: [if (isActive) BoxShadow(color: Colors.green.withOpacity(0.5), blurRadius: 10, spreadRadius: 2)]));
   }
 }
 
@@ -546,24 +595,9 @@ class _QuickActionBtn extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
   const _QuickActionBtn({required this.icon, required this.label, required this.color, required this.onTap});
-
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(color: const Color(0xFF121212), borderRadius: BorderRadius.circular(16)),
-        child: Column(
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(height: 4),
-            Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
+    return InkWell(onTap: onTap, borderRadius: BorderRadius.circular(16), child: Container(padding: const EdgeInsets.symmetric(vertical: 16), decoration: BoxDecoration(color: const Color(0xFF121212), borderRadius: BorderRadius.circular(16)), child: Column(children: [Icon(icon, color: color), const SizedBox(height: 4), Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))])));
   }
 }
 
@@ -571,14 +605,8 @@ class _StatItem extends StatelessWidget {
   final String label;
   final String value;
   const _StatItem({required this.label, required this.value});
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.white38, letterSpacing: 1.5)),
-        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-      ],
-    );
+    return Column(children: [Text(label, style: const TextStyle(fontSize: 10, color: Colors.white38, letterSpacing: 1.5)), Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))]);
   }
 }
