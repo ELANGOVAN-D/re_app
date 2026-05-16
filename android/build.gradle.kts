@@ -23,23 +23,4 @@ tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 
-subprojects {
-    project.plugins.withId("com.android.application") {
-        project.extensions.getByType<com.android.build.gradle.BaseExtension>().apply {
-            compileSdkVersion(35)
-            defaultConfig {
-                minSdkVersion(21)
-                targetSdkVersion(35)
-            }
-        }
-    }
-    project.plugins.withId("com.android.library") {
-        project.extensions.getByType<com.android.build.gradle.BaseExtension>().apply {
-            compileSdkVersion(35)
-            defaultConfig {
-                minSdkVersion(21)
-                targetSdkVersion(35)
-            }
-        }
-    }
-}
+
