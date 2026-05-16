@@ -194,10 +194,6 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-import 'package:url_launcher/url_launcher.dart';
-
-// ... (previous imports)
-
   Widget _buildSearchBar(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
