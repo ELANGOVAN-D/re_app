@@ -29,6 +29,20 @@ subprojects {
                 (android as? com.android.build.gradle.BaseExtension)?.namespace = "com.example.${project.name.replace(":", "_").replace("-", "_")}"
             }
 
+            // Force JVM target 17 for all plugins to match the app and AGP 8 requirements
+            if (android != null && android is com.android.build.gradle.BaseExtension) {
+                android.compileOptions {
+                    sourceCompatibility = JavaVersion.VERSION_17
+                    targetCompatibility = JavaVersion.VERSION_17
+                }
+            }
+            
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).configureEach {
+                kotlinOptions {
+                    jvmTarget = "17"
+                }
+            }
+
             // Fix for AGP 8.0+ manifest package conflict
             // Dynamically removes 'package' attribute from library manifests during build
             project.tasks.matching { it.name.contains("process") && it.name.contains("Manifest") }.configureEach {
