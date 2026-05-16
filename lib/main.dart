@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'app_state.dart';
+import 'screens/dashboard_screen.dart';
+import 'screens/rides_screen.dart';
+import 'screens/trip_planner_screen.dart';
+import 'screens/tools_screen.dart';
+import 'screens/garage_screen.dart';
+import 'screens/settings_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+  ));
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState(),
@@ -20,24 +31,56 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
     return MaterialApp(
       title: 'STEALTH BRIDGE PRO',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
+      theme: _buildTheme(isDark: state.isDarkMode),
+      home: const MainNavigation(),
+    );
+  }
+
+  ThemeData _buildTheme({required bool isDark}) {
+    const primary = Color(0xFFFF3B30);
+    const secondary = Color(0xFFFF9F0A);
+
+    if (isDark) {
+      return ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF050505),
         textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.redAccent,
-          brightness: Brightness.dark,
-          primary: Colors.redAccent,
-          secondary: Colors.amberAccent,
-          surface: const Color(0xFF121212),
+        colorScheme: const ColorScheme.dark(
+          primary: primary,
+          secondary: secondary,
+          surface: Color(0xFF121212),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: const Color(0xFF0D0D0D),
+          indicatorColor: primary.withOpacity(0.15),
+          labelTextStyle: WidgetStateProperty.all(
+            const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+          ),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: false,
         ),
         useMaterial3: true,
-      ),
-      home: const MainNavigation(),
-    );
+      );
+    } else {
+      return ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: const Color(0xFFF2F2F7),
+        textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme),
+        colorScheme: const ColorScheme.light(
+          primary: primary,
+          secondary: secondary,
+          surface: Colors.white,
+        ),
+        useMaterial3: true,
+      );
+    }
   }
 }
 
@@ -50,13 +93,14 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
-  
-  final List<Widget> _screens = [
-    const DashboardScreen(),
-    const RidesScreen(),
-    const TripPlannerScreen(),
-    const ToolsScreen(),
-    const GarageScreen(),
+
+  static const _screens = <Widget>[
+    DashboardScreen(),
+    RidesScreen(),
+    TripPlannerScreen(),
+    ToolsScreen(),
+    GarageScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -73,9 +117,10 @@ class _MainNavigationState extends State<MainNavigation> {
         Permission.location,
         Permission.phone,
         Permission.notification,
+        Permission.storage,
       ].request();
     } catch (e) {
-      debugPrint("Permission request failed: $e");
+      debugPrint('Permission request failed: $e');
     }
   }
 
@@ -83,572 +128,64 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _screens),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: _NavBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-        backgroundColor: const Color(0xFF0D0D0D),
-        indicatorColor: Colors.redAccent.withOpacity(0.2),
+        onChanged: (i) => setState(() => _selectedIndex = i),
+      ),
+    );
+  }
+}
+
+class _NavBar extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onChanged;
+  const _NavBar({required this.selectedIndex, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Colors.white.withOpacity(0.06)),
+        ),
+      ),
+      child: NavigationBar(
+        selectedIndex: selectedIndex,
+        onDestinationSelected: onChanged,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard_rounded), label: 'DASH'),
-          NavigationDestination(icon: Icon(Icons.speed_rounded), label: 'RIDES'),
-          NavigationDestination(icon: Icon(Icons.route_rounded), label: 'PLANNER'),
-          NavigationDestination(icon: Icon(Icons.build_circle_rounded), label: 'TOOLS'),
-          NavigationDestination(icon: Icon(Icons.motorcycle_rounded), label: 'GARAGE'),
-        ],
-      ),
-    );
-  }
-}
-
-// --- SCREEN 1: DASHBOARD ---
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar.large(
-          title: Text('STEALTH BRIDGE', style: GoogleFonts.outfit(fontWeight: FontWeight.w900, letterSpacing: 2)),
-          backgroundColor: Colors.transparent,
-          actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none)),
-            IconButton(onPressed: () => _showSettings(context), icon: const Icon(Icons.settings_outlined)),
-          ],
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              children: [
-                _buildSearchBar(context),
-                const SizedBox(height: 20),
-                _buildStatusCard(state),
-                const SizedBox(height: 20),
-                _buildMusicPlayer(state),
-                const SizedBox(height: 20),
-                _buildQuickActions(context),
-                const SizedBox(height: 20),
-              ],
-            ),
+          NavigationDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard_rounded),
+            label: 'DASH',
           ),
-        )
-      ],
-    );
-  }
-
-  void _showSettings(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF121212),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('SYSTEM SETTINGS', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
-            const Divider(height: 32),
-            ListTile(leading: const Icon(Icons.bluetooth), title: const Text('Auto-Reconnect'), trailing: Switch(value: true, onChanged: (v) {})),
-            ListTile(leading: const Icon(Icons.vibration), title: const Text('Haptic Feedback'), trailing: Switch(value: true, onChanged: (v) {})),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchBar(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Where to, Rider?',
-          prefixIcon: const Icon(Icons.search, color: Colors.redAccent),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 15),
-        ),
-        onSubmitted: (val) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Finding route to: $val...')));
-        },
-      ),
-    );
-  }
-
-  Widget _buildStatusCard(AppState state) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF121212),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: state.connectedDevice != null ? Colors.green : Colors.redAccent.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          _PulseIcon(isActive: state.connectedDevice != null),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('CONNECTION STATUS', style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.4), letterSpacing: 1)),
-                Text(state.connectedDevice != null ? 'CONNECTED TO TRIPPER' : 'TRIPPER NOT FOUND', 
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              ],
-            ),
+          NavigationDestination(
+            icon: Icon(Icons.speed_outlined),
+            selectedIcon: Icon(Icons.speed_rounded),
+            label: 'RIDES',
           ),
-          if (state.connectedDevice == null)
-            IconButton.filledTonal(
-              onPressed: () => state.startScan(),
-              icon: Icon(state.isScanning ? Icons.sync : Icons.search),
-            )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMusicPlayer(AppState state) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [const Color(0xFF1E1E1E), const Color(0xFF0F0F0F)]),
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 20)],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.music_note_rounded, color: Colors.redAccent),
-              const SizedBox(width: 8),
-              const Text('NOW PLAYING', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              const Spacer(),
-              Text('STREAMING', style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold)),
-            ],
+          NavigationDestination(
+            icon: Icon(Icons.route_outlined),
+            selectedIcon: Icon(Icons.route_rounded),
+            label: 'PLAN',
           ),
-          const SizedBox(height: 24),
-          Text(state.currentSong, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900), maxLines: 1),
-          Text(state.currentArtist, style: TextStyle(color: Colors.white.withOpacity(0.5))),
-          const SizedBox(height: 24),
-          const LinearProgressIndicator(value: 0.3, backgroundColor: Colors.white10, valueColor: AlwaysStoppedAnimation(Colors.redAccent)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActions(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: _QuickActionBtn(icon: Icons.sos_rounded, label: 'SOS', color: Colors.red, onTap: () => _handleSOS(context))),
-        const SizedBox(width: 15),
-        Expanded(child: _QuickActionBtn(icon: Icons.map_rounded, label: 'NEARBY', color: Colors.blue, onTap: () => _launchNearby(context))),
-        const SizedBox(width: 15),
-        Expanded(child: _QuickActionBtn(icon: Icons.lightbulb_rounded, label: 'THEME', color: Colors.amber, onTap: () => _toggleTheme(context))),
-      ],
-    );
-  }
-
-  void _handleSOS(BuildContext context) async {
-    final Uri url = Uri.parse('tel:112');
-    if (await canLaunchUrl(url)) await launchUrl(url);
-  }
-
-  void _launchNearby(BuildContext context) async {
-    const url = 'https://www.google.com/maps/search/?api=1&query=petrol+pump+near+me';
-    if (await canLaunchUrl(Uri.parse(url))) await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  }
-
-  void _toggleTheme(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Theme Customization Active: Stealth Mode')));
-  }
-}
-
-// --- SCREEN 2: RIDE STATS ---
-class RidesScreen extends StatelessWidget {
-  const RidesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              const Text('LIVE TELEMETRY', style: TextStyle(letterSpacing: 3, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 40),
-              _buildSpeedometer(state),
-              const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _StatItem(label: 'MAX SPEED', value: '${state.maxSpeed.toStringAsFixed(1)} km/h'),
-                  _StatItem(label: 'DISTANCE', value: '${state.totalDistance.toStringAsFixed(2)} km'),
-                ],
-              ),
-              const SizedBox(height: 40),
-              Expanded(child: _buildRideChart()),
-              const SizedBox(height: 20),
-              _buildTripControls(state),
-            ],
+          NavigationDestination(
+            icon: Icon(Icons.build_circle_outlined),
+            selectedIcon: Icon(Icons.build_circle_rounded),
+            label: 'TOOLS',
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSpeedometer(AppState state) {
-    return Column(
-      children: [
-        Text(state.currentSpeed.toInt().toString(), style: GoogleFonts.outfit(fontSize: 100, fontWeight: FontWeight.w900, color: Colors.white)),
-        const Text('KM/H', style: TextStyle(letterSpacing: 4, color: Colors.redAccent, fontWeight: FontWeight.bold)),
-      ],
-    );
-  }
-
-  Widget _buildRideChart() {
-    return LineChart(
-      LineChartData(
-        gridData: const FlGridData(show: false),
-        titlesData: const FlTitlesData(show: false),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: [const FlSpot(0, 0), const FlSpot(1, 20), const FlSpot(2, 45), const FlSpot(3, 40), const FlSpot(4, 60)],
-            isCurved: true,
-            color: Colors.redAccent,
-            barWidth: 4,
-            belowBarData: BarAreaData(show: true, color: Colors.redAccent.withOpacity(0.1)),
-          )
-        ]
-      )
-    );
-  }
-
-  Widget _buildTripControls(AppState state) {
-    return ElevatedButton(
-      onPressed: state.isTracking ? () => state.stopTrip() : () => state.startTrip(),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: state.isTracking ? Colors.white10 : Colors.redAccent,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-      ),
-      child: Text(state.isTracking ? 'PAUSE TRIP' : 'START NEW TRIP'),
-    );
-  }
-}
-
-// --- SCREEN 3: TRIP PLANNER ---
-class TripPlannerScreen extends StatefulWidget {
-  const TripPlannerScreen({super.key});
-
-  @override
-  State<TripPlannerScreen> createState() => _TripPlannerScreenState();
-}
-
-class _TripPlannerScreenState extends State<TripPlannerScreen> {
-  bool _isScenic = true;
-  final List<String> _stops = ['Home', 'Mount Road'];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('TRIP PLANNER', style: TextStyle(fontWeight: FontWeight.bold))),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildScenicToggle(),
-            const SizedBox(height: 20),
-            Expanded(child: _buildStopsList()),
-            const SizedBox(height: 20),
-            _buildActionButtons(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScenicToggle() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFF121212), borderRadius: BorderRadius.circular(16)),
-      child: Row(
-        children: [
-          const Icon(Icons.terrain, color: Colors.green),
-          const SizedBox(width: 12),
-          const Expanded(child: Text('SCENIC ROUTE MODE', style: TextStyle(fontWeight: FontWeight.bold))),
-          Switch(value: _isScenic, onChanged: (v) => setState(() => _isScenic = v), activeColor: Colors.green),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStopsList() {
-    return ListView.builder(
-      itemCount: _stops.length,
-      itemBuilder: (context, i) => ListTile(
-        leading: Icon(i == 0 ? Icons.my_location : Icons.location_on, color: i == 0 ? Colors.blue : Colors.redAccent),
-        title: Text(_stops[i]),
-        trailing: const Icon(Icons.drag_handle),
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Column(
-      children: [
-        OutlinedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.add_location_alt),
-          label: const Text('ADD STOP'),
-          style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-        ),
-        const SizedBox(height: 12),
-        ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.redAccent,
-            foregroundColor: Colors.white,
-            minimumSize: const Size(double.infinity, 60),
+          NavigationDestination(
+            icon: Icon(Icons.motorcycle_outlined),
+            selectedIcon: Icon(Icons.motorcycle_rounded),
+            label: 'GARAGE',
           ),
-          child: const Text('SYNC TO TRIPPER POD', style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-      ],
-    );
-  }
-}
-
-// --- SCREEN 4: TOOLS PRO ---
-class ToolsScreen extends StatelessWidget {
-  const ToolsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('RIDER TOOLS PRO', style: TextStyle(fontWeight: FontWeight.bold))),
-      body: GridView.count(
-        crossAxisCount: 2,
-        padding: const EdgeInsets.all(20),
-        mainAxisSpacing: 15,
-        crossAxisSpacing: 15,
-        children: [
-          _buildToolCard(context, Icons.music_note, 'Local Music', Colors.pinkAccent, const LocalMusicScreen()),
-          _buildToolCard(context, Icons.local_gas_station, 'Fuel Calculator', Colors.orange, const FuelCalculatorScreen()),
-          _buildToolCard(context, Icons.cloud, 'Weather Pro', Colors.blue, null),
-          _buildToolCard(context, Icons.location_on, 'RE Service', Colors.redAccent, null),
-          _buildToolCard(context, Icons.group, 'Riding Clubs', Colors.purple, null),
-          _buildToolCard(context, Icons.history, 'Ride History', Colors.green, null),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildToolCard(BuildContext context, IconData icon, String label, Color color, Widget? target) {
-    return InkWell(
-      onTap: () {
-        if (target != null) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => target));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label Feature Coming Soon!')));
-        }
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        decoration: BoxDecoration(color: const Color(0xFF121212), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withOpacity(0.1))),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 40),
-            const SizedBox(height: 12),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// --- NEW FEATURE: LOCAL MUSIC PLAYER ---
-class LocalMusicScreen extends StatelessWidget {
-  const LocalMusicScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
-    return Scaffold(
-      appBar: AppBar(title: const Text('LOCAL MUSIC', style: TextStyle(fontWeight: FontWeight.bold))),
-      body: state.localSongs.isEmpty
-        ? const Center(child: Text('No songs found on device'))
-        : ListView.builder(
-            itemCount: state.localSongs.length,
-            padding: const EdgeInsets.all(12),
-            itemBuilder: (context, i) {
-              final song = state.localSongs[i];
-              return Card(
-                color: const Color(0xFF121212),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: const CircleAvatar(backgroundColor: Colors.pinkAccent, child: Icon(Icons.music_note, color: Colors.white)),
-                  title: Text(song.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1),
-                  subtitle: Text(song.artist ?? 'Unknown Artist', style: const TextStyle(fontSize: 12)),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.play_arrow, color: Colors.pinkAccent),
-                    onPressed: () => state.playLocalSong(song),
-                  ),
-                ),
-              );
-            },
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings_rounded),
+            label: 'SETTINGS',
           ),
-      floatingActionButton: state.isPlayingLocal 
-        ? FloatingActionButton(
-            onPressed: () => state.stopLocalMusic(),
-            backgroundColor: Colors.redAccent,
-            child: const Icon(Icons.stop),
-          )
-        : null,
-    );
-  }
-}
-
-// --- SCREEN 5: GARAGE ---
-class GarageScreen extends StatelessWidget {
-  const GarageScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          const Text('MY GARAGE', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-          const Text('Classic 350 Stealth Black', style: TextStyle(color: Colors.redAccent)),
-          const SizedBox(height: 30),
-          _buildServiceProgress(),
-          const SizedBox(height: 30),
-          const Text('LOGS', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          _buildLogItem('Fuel Refill', '2.5L @ ₹102.5', 'Yesterday'),
-          _buildLogItem('Chain Clean', 'DIY Service', '3 Days Ago'),
         ],
       ),
     );
-  }
-
-  Widget _buildServiceProgress() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: const Color(0xFF1A1A1A), borderRadius: BorderRadius.circular(20)),
-      child: Column(
-        children: [
-          const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Next Service'), Text('750 / 5000 km')]),
-          const SizedBox(height: 10),
-          const LinearProgressIndicator(value: 0.15, backgroundColor: Colors.white10, valueColor: AlwaysStoppedAnimation(Colors.redAccent)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLogItem(String title, String sub, String date) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          const CircleAvatar(backgroundColor: Colors.white10, child: Icon(Icons.history_rounded, size: 16)),
-          const SizedBox(width: 12),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title), Text(sub, style: const TextStyle(fontSize: 10, color: Colors.white54))]),
-          const Spacer(),
-          Text(date, style: const TextStyle(fontSize: 10, color: Colors.white38)),
-        ],
-      ),
-    );
-  }
-}
-
-// --- NEW FEATURE: FUEL CALCULATOR ---
-class FuelCalculatorScreen extends StatefulWidget {
-  const FuelCalculatorScreen({super.key});
-
-  @override
-  State<FuelCalculatorScreen> createState() => _FuelCalculatorScreenState();
-}
-
-class _FuelCalculatorScreenState extends State<FuelCalculatorScreen> {
-  double _dist = 100;
-  double _mileage = 35;
-  
-  @override
-  Widget build(BuildContext context) {
-    double fuelNeeded = _dist / _mileage;
-    return Scaffold(
-      appBar: AppBar(title: const Text('FUEL CALCULATOR')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            const Text('ESTIMATE YOUR RIDE', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
-            Text('Distance: ${_dist.toInt()} km'),
-            Slider(value: _dist, min: 1, max: 1000, onChanged: (v) => setState(() => _dist = v)),
-            const SizedBox(height: 20),
-            Text('Bike Mileage: ${_mileage.toInt()} km/L'),
-            Slider(value: _mileage, min: 10, max: 60, onChanged: (v) => setState(() => _mileage = v)),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.all(30),
-              decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.redAccent)),
-              child: Column(
-                children: [
-                  const Text('FUEL NEEDED'),
-                  Text(fuelNeeded.toStringAsFixed(2), style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900)),
-                  const Text('LITERS'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// --- SHARED WIDGETS ---
-class _PulseIcon extends StatelessWidget {
-  final bool isActive;
-  const _PulseIcon({required this.isActive});
-  @override
-  Widget build(BuildContext context) {
-    return Container(width: 12, height: 12, decoration: BoxDecoration(color: isActive ? Colors.green : Colors.red, shape: BoxShape.circle, boxShadow: [if (isActive) BoxShadow(color: Colors.green.withOpacity(0.5), blurRadius: 10, spreadRadius: 2)]));
-  }
-}
-
-class _QuickActionBtn extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-  const _QuickActionBtn({required this.icon, required this.label, required this.color, required this.onTap});
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(onTap: onTap, borderRadius: BorderRadius.circular(16), child: Container(padding: const EdgeInsets.symmetric(vertical: 16), decoration: BoxDecoration(color: const Color(0xFF121212), borderRadius: BorderRadius.circular(16)), child: Column(children: [Icon(icon, color: color), const SizedBox(height: 4), Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))])));
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  final String label;
-  final String value;
-  const _StatItem({required this.label, required this.value});
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [Text(label, style: const TextStyle(fontSize: 10, color: Colors.white38, letterSpacing: 1.5)), Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))]);
   }
 }
