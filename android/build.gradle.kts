@@ -19,28 +19,26 @@ subprojects {
     if (project.name != "app") {
         project.evaluationDependsOn(":app")
     }
+
+    // 1. Force JVM target 17 for all Java/Kotlin compilation tasks.
+    // This is done outside of afterEvaluate to avoid "already finalized" errors.
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
+    }
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
 }
 
 subprojects {
-    val applyNamespaceFix = {
+    val applyLegacyFixes = {
         if (project.hasProperty("android")) {
             val android = project.extensions.findByName("android")
             if (android != null && (android as? com.android.build.gradle.BaseExtension)?.namespace == null) {
                 (android as? com.android.build.gradle.BaseExtension)?.namespace = "com.example.${project.name.replace(":", "_").replace("-", "_")}"
-            }
-
-            // Force JVM target 17 for all plugins to match the app and AGP 8 requirements
-            if (android != null && android is com.android.build.gradle.BaseExtension) {
-                android.compileOptions {
-                    sourceCompatibility = JavaVersion.VERSION_17
-                    targetCompatibility = JavaVersion.VERSION_17
-                }
-            }
-            
-            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).configureEach {
-                kotlinOptions {
-                    jvmTarget = "17"
-                }
             }
 
             // Fix for AGP 8.0+ manifest package conflict
@@ -60,9 +58,9 @@ subprojects {
     }
 
     if (project.state.executed) {
-        applyNamespaceFix()
+        applyLegacyFixes()
     } else {
-        afterEvaluate { applyNamespaceFix() }
+        afterEvaluate { applyLegacyFixes() }
     }
 }
 
