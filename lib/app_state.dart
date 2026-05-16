@@ -82,13 +82,13 @@ class AppState extends ChangeNotifier {
   bool _isTracking = false;
   Position? _lastPosition;
   Timer? _tripTimer;
-  List<double> _speedHistory = [];
+  final List<double> _speedHistory = [];
 
   // Ride History
   List<RideRecord> _rideHistory = [];
 
   // Maintenance Logs
-  List<MaintenanceEntry> _maintenanceLogs = [
+  final List<MaintenanceEntry> _maintenanceLogs = [
     MaintenanceEntry(
       title: 'Engine Oil Change',
       description: '20W-50 Motul — Workshop',

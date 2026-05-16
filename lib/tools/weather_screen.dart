@@ -87,7 +87,6 @@ class _WeatherContent extends StatelessWidget {
     final dates = (daily['time'] as List).cast<String>();
     final maxTemps = (daily['temperature_2m_max'] as List).cast<num>();
     final minTemps = (daily['temperature_2m_min'] as List).cast<num>();
-    final winds = (daily['windspeed_10m_max'] as List).cast<num>();
     final codes = (daily['weathercode'] as List).cast<num>();
 
     return ListView(
