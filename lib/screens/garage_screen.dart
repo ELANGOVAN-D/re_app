@@ -66,7 +66,7 @@ class GarageScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
-                initialValue: category,
+                value: category,
                 decoration: _inputDeco('Category'),
                 dropdownColor: const Color(0xFF1A1A1A),
                 items: ['Service', 'Fuel', 'DIY', 'Repair', 'Other']

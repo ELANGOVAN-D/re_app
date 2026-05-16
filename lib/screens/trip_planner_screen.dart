@@ -70,7 +70,7 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
               ],
             ),
           ),
-          Switch(value: _isScenic, onChanged: (v) => setState(() => _isScenic = v), activeThumbColor: Colors.green),
+          Switch(value: _isScenic, onChanged: (v) => setState(() => _isScenic = v), activeColor: Colors.green),
         ],
       ),
     );

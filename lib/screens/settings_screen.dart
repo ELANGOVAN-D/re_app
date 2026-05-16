@@ -161,7 +161,7 @@ class _ToggleTile extends StatelessWidget {
       ),
       title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 11, color: Colors.white38)),
-      trailing: Switch(value: value, onChanged: onChanged, activeThumbColor: color),
+      trailing: Switch(value: value, onChanged: onChanged, activeColor: color),
     );
   }
 }
