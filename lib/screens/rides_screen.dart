@@ -38,9 +38,9 @@ class RidesScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.redAccent.withOpacity(0.15),
+                        color: Colors.redAccent.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.redAccent.withOpacity(0.4)),
+                        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
                       ),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Container(width: 6, height: 6,
@@ -74,7 +74,7 @@ class RidesScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('SPEED HISTORY', style: TextStyle(fontSize: 10, letterSpacing: 2, color: Colors.white.withOpacity(0.4))),
+                      Text('SPEED HISTORY', style: TextStyle(fontSize: 10, letterSpacing: 2, color: Colors.white.withValues(alpha: 0.4))),
                       const SizedBox(height: 16),
                       SizedBox(
                         height: 100,
@@ -91,7 +91,7 @@ class RidesScreen extends StatelessWidget {
                               color: const Color(0xFFFF3B30),
                               barWidth: 2.5,
                               dotData: const FlDotData(show: false),
-                              belowBarData: BarAreaData(show: true, color: const Color(0xFFFF3B30).withOpacity(0.1)),
+                              belowBarData: BarAreaData(show: true, color: const Color(0xFFFF3B30).withValues(alpha: 0.1)),
                             ),
                           ],
                         )),
@@ -135,7 +135,7 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      borderColor: color.withOpacity(0.15),
+      borderColor: color.withValues(alpha: 0.15),
       child: Row(
         children: [
           Icon(icon, color: color, size: 20),
@@ -144,9 +144,9 @@ class _StatCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(label, style: TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.4), letterSpacing: 1)),
+              Text(label, style: TextStyle(fontSize: 9, color: Colors.white.withValues(alpha: 0.4), letterSpacing: 1)),
               Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-              Text(unit, style: TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.4))),
+              Text(unit, style: TextStyle(fontSize: 9, color: Colors.white.withValues(alpha: 0.4))),
             ],
           ),
         ],

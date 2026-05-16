@@ -96,13 +96,13 @@ class _WeatherContent extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [const Color(0xFF0A1A2A), const Color(0xFF050505)],
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0A1A2A), Color(0xFF050505)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.blueAccent.withOpacity(0.2)),
+            border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.2)),
           ),
           child: Column(children: [
             Text(icon(code), style: const TextStyle(fontSize: 64)),
@@ -120,7 +120,7 @@ class _WeatherContent extends StatelessWidget {
         const SizedBox(height: 16),
         // Rider advice
         GlassCard(
-          borderColor: Colors.amberAccent.withOpacity(0.2),
+          borderColor: Colors.amberAccent.withValues(alpha: 0.2),
           child: Row(children: [
             const Text('🏍️', style: TextStyle(fontSize: 24)),
             const SizedBox(width: 12),
@@ -130,7 +130,7 @@ class _WeatherContent extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text('5-DAY FORECAST',
-            style: TextStyle(fontSize: 11, letterSpacing: 2, color: Colors.white.withOpacity(0.4))),
+            style: TextStyle(fontSize: 11, letterSpacing: 2, color: Colors.white.withValues(alpha: 0.4))),
         const SizedBox(height: 12),
         // Forecast cards
         ...List.generate(dates.length, (i) {
@@ -142,7 +142,7 @@ class _WeatherContent extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xFF111111),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: Row(children: [
               SizedBox(width: 60, child: Text(dayName,
@@ -159,7 +159,7 @@ class _WeatherContent extends StatelessWidget {
         const SizedBox(height: 16),
         Center(
           child: Text('Powered by Open-Meteo',
-              style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.2))),
+              style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.2))),
         ),
         const SizedBox(height: 24),
       ],

@@ -83,7 +83,7 @@ class _SummaryBar extends StatelessWidget {
   }
 
   Widget _vDiv() =>
-      Container(width: 1, height: 36, color: Colors.white.withOpacity(0.08));
+      Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.08));
 
   String _fmtDur(Duration d) {
     final h = d.inHours;
@@ -138,14 +138,14 @@ class _RideCard extends StatelessWidget {
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(18),
         border:
-            Border.all(color: Colors.white.withOpacity(0.06)),
+            Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Column(children: [
         Row(children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFFF3B30).withOpacity(0.1),
+              color: const Color(0xFFFF3B30).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.motorcycle_rounded,
@@ -185,7 +185,7 @@ class _RideCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.03),
+            color: Colors.white.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(

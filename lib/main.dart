@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         ),
         navigationBarTheme: NavigationBarThemeData(
           backgroundColor: const Color(0xFF0D0D0D),
-          indicatorColor: primary.withOpacity(0.15),
+          indicatorColor: primary.withValues(alpha: 0.15),
           labelTextStyle: WidgetStateProperty.all(
             const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
           ),
@@ -146,7 +146,7 @@ class _NavBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: Colors.white.withOpacity(0.06)),
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
         ),
       ),
       child: NavigationBar(

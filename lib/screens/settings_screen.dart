@@ -73,17 +73,17 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 10),
           GlassCard(
             child: Column(children: [
-              _InfoTile(icon: Icons.info_outline, label: 'App Version', value: '1.1.0'),
+              const _InfoTile(icon: Icons.info_outline, label: 'App Version', value: '1.1.0'),
               const Divider(color: Colors.white10, height: 1),
-              _InfoTile(icon: Icons.motorcycle_rounded, label: 'Device', value: 'Classic 350 — 2023'),
+              const _InfoTile(icon: Icons.motorcycle_rounded, label: 'Device', value: 'Classic 350 — 2023'),
               const Divider(color: Colors.white10, height: 1),
-              _InfoTile(icon: Icons.developer_board_rounded, label: 'BLE Protocol', value: 'Tripper v2.1'),
+              const _InfoTile(icon: Icons.developer_board_rounded, label: 'BLE Protocol', value: 'Tripper v2.1'),
               const Divider(color: Colors.white10, height: 1),
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.redAccent.withOpacity(0.1),
+                    color: Colors.redAccent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.open_in_new, color: Colors.redAccent, size: 18),
@@ -104,7 +104,7 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(
                   fontSize: 10,
                   letterSpacing: 3,
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   fontWeight: FontWeight.bold),
             ),
           ),
@@ -112,7 +112,7 @@ class SettingsScreen extends StatelessWidget {
           Center(
             child: Text(
               'Built for RE Tripper Pod',
-              style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.15)),
+              style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.15)),
             ),
           ),
           const SizedBox(height: 24),
@@ -127,7 +127,7 @@ class SettingsScreen extends StatelessWidget {
             style: TextStyle(
                 fontSize: 10,
                 letterSpacing: 2,
-                color: Colors.white.withOpacity(0.35),
+                color: Colors.white.withValues(alpha: 0.35),
                 fontWeight: FontWeight.bold)),
       );
 }
@@ -154,14 +154,14 @@ class _ToggleTile extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: color, size: 18),
       ),
       title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 11, color: Colors.white38)),
-      trailing: Switch(value: value, onChanged: onChanged, activeColor: color),
+      trailing: Switch(value: value, onChanged: onChanged, activeThumbColor: color),
     );
   }
 }
@@ -177,7 +177,7 @@ class _InfoTile extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: Colors.white54, size: 18),

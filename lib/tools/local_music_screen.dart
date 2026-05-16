@@ -38,13 +38,13 @@ class LocalMusicScreen extends StatelessWidget {
                         margin: const EdgeInsets.only(bottom: 8),
                         decoration: BoxDecoration(
                           color: isPlaying
-                              ? Colors.pinkAccent.withOpacity(0.08)
+                              ? Colors.pinkAccent.withValues(alpha: 0.08)
                               : const Color(0xFF111111),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isPlaying
-                                ? Colors.pinkAccent.withOpacity(0.3)
-                                : Colors.white.withOpacity(0.04),
+                                ? Colors.pinkAccent.withValues(alpha: 0.3)
+                                : Colors.white.withValues(alpha: 0.04),
                           ),
                         ),
                         child: ListTile(
@@ -52,7 +52,7 @@ class LocalMusicScreen extends StatelessWidget {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: Colors.pinkAccent.withOpacity(0.12),
+                              color: Colors.pinkAccent.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
@@ -99,7 +99,7 @@ class _NowPlayingBanner extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(16),
       child: GlassCard(
-        borderColor: Colors.pinkAccent.withOpacity(0.3),
+        borderColor: Colors.pinkAccent.withValues(alpha: 0.3),
         child: Row(
           children: [
             const Icon(Icons.music_note_rounded, color: Colors.pinkAccent),

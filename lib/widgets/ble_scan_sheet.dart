@@ -57,7 +57,7 @@ class BleScanSheet extends StatelessWidget {
                 FilledButton.tonal(
                   onPressed: state.isScanning ? null : () => state.startScan(),
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF3B30).withOpacity(0.15),
+                    backgroundColor: const Color(0xFFFF3B30).withValues(alpha: 0.15),
                   ),
                   child: Text(state.isScanning ? 'SCANNING...' : 'SCAN'),
                 ),
@@ -71,7 +71,7 @@ class BleScanSheet extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.bluetooth_disabled,
+                        const Icon(Icons.bluetooth_disabled,
                             size: 48, color: Colors.white24),
                         const SizedBox(height: 12),
                         Text(
@@ -97,7 +97,7 @@ class BleScanSheet extends StatelessWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF3B30).withOpacity(0.1),
+                            color: const Color(0xFFFF3B30).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(Icons.bluetooth,
@@ -135,9 +135,9 @@ class BleScanSheet extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.greenAccent.withOpacity(0.1),
+                  color: Colors.greenAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+                  border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [

@@ -85,9 +85,9 @@ class _FuelCalculatorScreenState extends State<FuelCalculatorScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFFFF3B30).withOpacity(0.07),
+              color: const Color(0xFFFF3B30).withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFFF3B30).withOpacity(0.2)),
+              border: Border.all(color: const Color(0xFFFF3B30).withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
@@ -157,7 +157,7 @@ class _ResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassCard(
       padding: const EdgeInsets.all(16),
-      borderColor: color.withOpacity(0.2),
+      borderColor: color.withValues(alpha: 0.2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,

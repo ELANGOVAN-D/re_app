@@ -55,7 +55,7 @@ class _PulseRingState extends State<PulseRing>
                   height: widget.size,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: color.withOpacity(_opacity.value),
+                    color: color.withValues(alpha: _opacity.value),
                   ),
                 ),
               ),
@@ -68,7 +68,7 @@ class _PulseRingState extends State<PulseRing>
               color: color,
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.5),
+                  color: color.withValues(alpha: 0.5),
                   blurRadius: 6,
                   spreadRadius: 1,
                 )

@@ -19,34 +19,34 @@ class ToolsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
-        children: [
+        children: const [
           _ToolCard(
             icon: Icons.music_note_rounded,
             label: 'Local Music',
             subtitle: 'Play device songs',
             color: Colors.pinkAccent,
-            target: const LocalMusicScreen(),
+            target: LocalMusicScreen(),
           ),
           _ToolCard(
             icon: Icons.local_gas_station_rounded,
             label: 'Fuel Calc',
             subtitle: 'Range & cost planner',
             color: Colors.orange,
-            target: const FuelCalculatorScreen(),
+            target: FuelCalculatorScreen(),
           ),
           _ToolCard(
             icon: Icons.cloud_rounded,
             label: 'Weather Pro',
             subtitle: '5-day forecast',
             color: Colors.blueAccent,
-            target: const WeatherScreen(),
+            target: WeatherScreen(),
           ),
           _ToolCard(
             icon: Icons.history_rounded,
             label: 'Ride History',
             subtitle: 'Past trips & stats',
             color: Colors.greenAccent,
-            target: const RideHistoryScreen(),
+            target: RideHistoryScreen(),
           ),
           _ToolCard(
             icon: Icons.group_rounded,
@@ -100,10 +100,10 @@ class _ToolCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF111111),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.18)),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
           boxShadow: [
             BoxShadow(
-                color: color.withOpacity(0.05), blurRadius: 12, spreadRadius: 1)
+                color: color.withValues(alpha: 0.05), blurRadius: 12, spreadRadius: 1)
           ],
         ),
         child: Column(
@@ -112,7 +112,7 @@ class _ToolCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 30),

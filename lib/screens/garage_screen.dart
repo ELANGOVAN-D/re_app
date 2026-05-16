@@ -34,7 +34,7 @@ class GarageScreen extends StatelessWidget {
               style: TextStyle(
                   fontSize: 11,
                   letterSpacing: 2,
-                  color: Colors.white.withOpacity(0.4))),
+                  color: Colors.white.withValues(alpha: 0.4))),
           const SizedBox(height: 12),
           ...state.maintenanceLogs.map((e) => _LogCard(entry: e)),
           const SizedBox(height: 24),
@@ -66,7 +66,7 @@ class GarageScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
-                value: category,
+                initialValue: category,
                 decoration: _inputDeco('Category'),
                 dropdownColor: const Color(0xFF1A1A1A),
                 items: ['Service', 'Fuel', 'DIY', 'Repair', 'Other']
@@ -120,7 +120,7 @@ class _BikeProfileCard extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.redAccent.withOpacity(0.2)),
+        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -128,21 +128,21 @@ class _BikeProfileCard extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: const Color(0xFFFF3B30).withOpacity(0.1),
+              color: const Color(0xFFFF3B30).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFFF3B30).withOpacity(0.3)),
+              border: Border.all(color: const Color(0xFFFF3B30).withValues(alpha: 0.3)),
             ),
             child: const Icon(Icons.motorcycle_rounded, color: Color(0xFFFF3B30), size: 32),
           ),
           const SizedBox(width: 16),
-          Column(
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('ROYAL ENFIELD',
+              Text('ROYAL ENFIELD',
                   style: TextStyle(fontSize: 11, color: Colors.white38, letterSpacing: 1.5)),
-              const Text('Classic 350',
+              Text('Classic 350',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-              const Text('Stealth Black  •  2023',
+              Text('Stealth Black  •  2023',
                   style: TextStyle(color: Color(0xFFFF3B30), fontSize: 13)),
             ],
           ),
@@ -168,7 +168,7 @@ class _ServiceProgressCard extends StatelessWidget {
             children: [
               const Icon(Icons.build_circle_rounded, color: Color(0xFFFF3B30), size: 18),
               const SizedBox(width: 8),
-              Text('NEXT SERVICE', style: TextStyle(fontSize: 11, letterSpacing: 2, color: Colors.white.withOpacity(0.4))),
+              Text('NEXT SERVICE', style: TextStyle(fontSize: 11, letterSpacing: 2, color: Colors.white.withValues(alpha: 0.4))),
               const Spacer(),
               Text('${remaining.toInt()} km left',
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amber)),
@@ -214,9 +214,9 @@ class _LifetimeStatsCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _GStat(label: 'TOTAL RIDES', value: '$totalRides', color: Colors.blueAccent),
-          Container(width: 1, height: 40, color: Colors.white.withOpacity(0.08)),
+          Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.08)),
           _GStat(label: 'TOTAL KM', value: totalDist.toStringAsFixed(1), color: Colors.greenAccent),
-          Container(width: 1, height: 40, color: Colors.white.withOpacity(0.08)),
+          Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.08)),
           _GStat(label: 'LOGS', value: '${state.maintenanceLogs.length}', color: Colors.amber),
         ],
       ),
@@ -261,14 +261,14 @@ class _LogCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.15)),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(Icons.history_rounded, color: color, size: 18),
           ),
           const SizedBox(width: 12),
@@ -282,7 +282,7 @@ class _LogCard extends StatelessWidget {
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
               child: Text(entry.category, style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 4),

@@ -58,7 +58,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(height: 16),
               _MusicPlayerCard(state: state),
               const SizedBox(height: 16),
-              _QuickActionsRow(),
+              const _QuickActionsRow(),
               const SizedBox(height: 16),
               _RideStatsRow(state: state),
               const SizedBox(height: 24),
@@ -79,8 +79,8 @@ class _ConnectionCard extends StatelessWidget {
     final connected = state.connectedDevice != null;
     return GlassCard(
       borderColor: connected
-          ? Colors.greenAccent.withOpacity(0.3)
-          : Colors.redAccent.withOpacity(0.15),
+          ? Colors.greenAccent.withValues(alpha: 0.3)
+          : Colors.redAccent.withValues(alpha: 0.15),
       child: Row(
         children: [
           PulseRing(isActive: connected),
@@ -92,7 +92,7 @@ class _ConnectionCard extends StatelessWidget {
                 Text('CONNECTION',
                     style: TextStyle(
                         fontSize: 10,
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withValues(alpha: 0.4),
                         letterSpacing: 1.5)),
                 const SizedBox(height: 4),
                 Text(
@@ -110,7 +110,7 @@ class _ConnectionCard extends StatelessWidget {
           FilledButton.tonal(
             onPressed: () => BleScanSheet.show(context),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFFF3B30).withOpacity(0.12),
+              backgroundColor: const Color(0xFFFF3B30).withValues(alpha: 0.12),
             ),
             child: Text(
               connected ? 'MANAGE' : 'CONNECT',
@@ -188,7 +188,7 @@ class _WeatherWidget extends StatelessWidget {
                 Text('CURRENT WEATHER',
                     style: TextStyle(
                         fontSize: 10,
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withValues(alpha: 0.4),
                         letterSpacing: 1.5)),
                 const SizedBox(height: 4),
                 Text('${temp.toStringAsFixed(1)}°C  •  ${wind.toStringAsFixed(0)} km/h wind',
@@ -226,7 +226,7 @@ class _MusicPlayerCard extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.redAccent.withOpacity(0.15)),
+        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,14 +241,14 @@ class _MusicPlayerCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       fontSize: 11,
                       letterSpacing: 2,
-                      color: Colors.white.withOpacity(0.6))),
+                      color: Colors.white.withValues(alpha: 0.6))),
               const Spacer(),
               if (state.isPlayingLocal)
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.greenAccent.withOpacity(0.15),
+                    color: Colors.greenAccent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text('LOCAL',
@@ -262,7 +262,7 @@ class _MusicPlayerCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent.withOpacity(0.15),
+                    color: Colors.blueAccent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text('STREAMING',
@@ -282,7 +282,7 @@ class _MusicPlayerCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(state.currentArtist,
               style: TextStyle(
-                  color: Colors.white.withOpacity(0.5), fontSize: 13)),
+                  color: Colors.white.withValues(alpha: 0.5), fontSize: 13)),
           const SizedBox(height: 16),
           LinearProgressIndicator(
             value: state.isPlayingLocal ? 0.4 : 0.3,
@@ -379,9 +379,9 @@ class _ActionBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Column(
           children: [
@@ -435,7 +435,7 @@ class _RideStatsRow extends StatelessWidget {
   }
 
   Widget _divider() => Container(
-      width: 1, height: 40, color: Colors.white.withOpacity(0.08));
+      width: 1, height: 40, color: Colors.white.withValues(alpha: 0.08));
 }
 
 class _Stat extends StatelessWidget {

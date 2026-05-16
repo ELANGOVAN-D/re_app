@@ -55,7 +55,7 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
+              color: Colors.green.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.terrain, color: Colors.green, size: 20),
@@ -70,7 +70,7 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
               ],
             ),
           ),
-          Switch(value: _isScenic, onChanged: (v) => setState(() => _isScenic = v), activeColor: Colors.green),
+          Switch(value: _isScenic, onChanged: (v) => setState(() => _isScenic = v), activeThumbColor: Colors.green),
         ],
       ),
     );
@@ -83,7 +83,7 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
         children: [
           Row(
             children: [
-              Text('WAYPOINTS', style: TextStyle(fontSize: 11, letterSpacing: 2, color: Colors.white.withOpacity(0.4))),
+              Text('WAYPOINTS', style: TextStyle(fontSize: 11, letterSpacing: 2, color: Colors.white.withValues(alpha: 0.4))),
               const Spacer(),
               TextButton.icon(
                 onPressed: _addStop,
@@ -109,7 +109,7 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('FUEL ESTIMATOR', style: TextStyle(fontSize: 11, letterSpacing: 2, color: Colors.white.withOpacity(0.4))),
+          Text('FUEL ESTIMATOR', style: TextStyle(fontSize: 11, letterSpacing: 2, color: Colors.white.withValues(alpha: 0.4))),
           const SizedBox(height: 16),
           _SliderRow(label: 'Distance', value: _dist, min: 10, max: 1000,
               display: '${_dist.toInt()} km',
@@ -139,13 +139,13 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
     final h = etaHours.floor();
     final m = ((etaHours - h) * 60).round();
     return GlassCard(
-      borderColor: Colors.blueAccent.withOpacity(0.2),
+      borderColor: Colors.blueAccent.withValues(alpha: 0.2),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.blueAccent.withOpacity(0.1),
+              color: Colors.blueAccent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.access_time, color: Colors.blueAccent),
@@ -154,7 +154,7 @@ class _TripPlannerScreenState extends State<TripPlannerScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('ESTIMATED TIME', style: TextStyle(fontSize: 10, letterSpacing: 1.5, color: Colors.white.withOpacity(0.4))),
+              Text('ESTIMATED TIME', style: TextStyle(fontSize: 10, letterSpacing: 1.5, color: Colors.white.withValues(alpha: 0.4))),
               const SizedBox(height: 4),
               Text(h > 0 ? '${h}h ${m}m' : '${m}m',
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
