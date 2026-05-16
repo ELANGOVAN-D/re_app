@@ -16,17 +16,25 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
-    project.evaluationDependsOn(":app")
+    if (project.name != "app") {
+        project.evaluationDependsOn(":app")
+    }
 }
 
 subprojects {
-    afterEvaluate {
+    val applyNamespaceFix = {
         if (project.hasProperty("android")) {
             val android = project.extensions.findByName("android")
             if (android != null && (android as? com.android.build.gradle.BaseExtension)?.namespace == null) {
-                (android as? com.android.build.gradle.BaseExtension)?.namespace = "com.example.${project.name.replace("-", "_")}"
+                (android as? com.android.build.gradle.BaseExtension)?.namespace = "com.example.${project.name.replace(":", "_").replace("-", "_")}"
             }
         }
+    }
+
+    if (project.state.executed) {
+        applyNamespaceFix()
+    } else {
+        afterEvaluate { applyNamespaceFix() }
     }
 }
 
