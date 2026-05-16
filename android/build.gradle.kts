@@ -19,6 +19,17 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+subprojects {
+    afterEvaluate {
+        if (project.hasProperty("android")) {
+            val android = project.extensions.findByName("android")
+            if (android != null && (android as? com.android.build.gradle.BaseExtension)?.namespace == null) {
+                (android as? com.android.build.gradle.BaseExtension)?.namespace = "com.example.${project.name.replace("-", "_")}"
+            }
+        }
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
