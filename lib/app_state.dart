@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
 class AppState extends ChangeNotifier {
   static const platform = MethodChannel('com.example.re_app/tripper');
@@ -16,6 +18,10 @@ class AppState extends ChangeNotifier {
   // Media State
   String _currentSong = "No music playing";
   String _currentArtist = "";
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final OnAudioQuery _audioQuery = OnAudioQuery();
+  List<SongModel> _localSongs = [];
+  bool _isPlayingLocal = false;
   
   // Ride Stats
   double _currentSpeed = 0.0;
@@ -37,21 +43,52 @@ class AppState extends ChangeNotifier {
   double get totalDistance => _totalDistance;
   Duration get tripDuration => _tripDuration;
   bool get isTracking => _isTracking;
+  List<SongModel> get localSongs => _localSongs;
+  bool get isPlayingLocal => _isPlayingLocal;
 
   AppState() {
     _initNativeBridge();
     _initLocationTracking();
+    _scanLocalMusic();
   }
 
   void _initNativeBridge() {
     platform.setMethodCallHandler((call) async {
-      if (call.method == "onMusicUpdate") {
+      if (call.method == "onMusicUpdate" && !_isPlayingLocal) {
         _currentSong = call.arguments['title'] ?? "Unknown Title";
         _currentArtist = call.arguments['artist'] ?? "Unknown Artist";
         notifyListeners();
         _sendToTripper("${_currentSong} - ${_currentArtist}");
       }
     });
+  }
+
+  Future<void> _scanLocalMusic() async {
+    if (!await _audioQuery.permissionsStatus()) {
+      await _audioQuery.permissionsRequest();
+    }
+    _localSongs = await _audioQuery.querySongs(
+      sortType: null,
+      orderType: OrderType.ASC_OR_SMALLER,
+      uriType: UriType.EXTERNAL,
+      ignoreCase: true,
+    );
+    notifyListeners();
+  }
+
+  Future<void> playLocalSong(SongModel song) async {
+    _isPlayingLocal = true;
+    _currentSong = song.title;
+    _currentArtist = song.artist ?? "Unknown Artist";
+    await _audioPlayer.play(DeviceFileSource(song.data));
+    _sendToTripper("${_currentSong} - ${_currentArtist}");
+    notifyListeners();
+  }
+
+  Future<void> stopLocalMusic() async {
+    await _audioPlayer.stop();
+    _isPlayingLocal = false;
+    notifyListeners();
   }
 
   void _initLocationTracking() {
@@ -71,8 +108,6 @@ class AppState extends ChangeNotifier {
       }
       _lastPosition = position;
       notifyListeners();
-      
-      // Send speed to Tripper Distance field for fun
       _sendDistanceToTripper(_currentSpeed.toInt());
     });
   }
@@ -100,13 +135,11 @@ class AppState extends ChangeNotifier {
     _isScanning = true;
     _scanResults = [];
     notifyListeners();
-
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
     FlutterBluePlus.scanResults.listen((results) {
       _scanResults = results.where((r) => r.device.name.isNotEmpty).toList();
       notifyListeners();
     });
-
     await Future.delayed(const Duration(seconds: 15));
     _isScanning = false;
     notifyListeners();
@@ -115,7 +148,6 @@ class AppState extends ChangeNotifier {
   Future<void> connect(BluetoothDevice device) async {
     await device.connect(autoConnect: true);
     _connectedDevice = device;
-    
     List<BluetoothService> services = await device.discoverServices();
     for (var service in services) {
       if (service.uuid.toString().contains("fee7")) {
@@ -137,7 +169,6 @@ class AppState extends ChangeNotifier {
 
   Future<void> _sendDistanceToTripper(int kmh) async {
     if (_writeCharacteristic == null) return;
-    // Using Distance TLV 0x04
     List<int> packet = [0x04, 0x00, 0x02, (kmh >> 8) & 0xFF, kmh & 0xFF];
     await _writeCharacteristic!.write(packet, withoutResponse: true);
   }

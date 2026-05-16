@@ -439,12 +439,12 @@ class ToolsScreen extends StatelessWidget {
         mainAxisSpacing: 15,
         crossAxisSpacing: 15,
         children: [
+          _buildToolCard(context, Icons.music_note, 'Local Music', Colors.pinkAccent, const LocalMusicScreen()),
           _buildToolCard(context, Icons.local_gas_station, 'Fuel Calculator', Colors.orange, const FuelCalculatorScreen()),
           _buildToolCard(context, Icons.cloud, 'Weather Pro', Colors.blue, null),
           _buildToolCard(context, Icons.location_on, 'RE Service', Colors.redAccent, null),
           _buildToolCard(context, Icons.group, 'Riding Clubs', Colors.purple, null),
           _buildToolCard(context, Icons.history, 'Ride History', Colors.green, null),
-          _buildToolCard(context, Icons.help_outline, 'Support', Colors.grey, null),
         ],
       ),
     );
@@ -471,6 +471,48 @@ class ToolsScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// --- NEW FEATURE: LOCAL MUSIC PLAYER ---
+class LocalMusicScreen extends StatelessWidget {
+  const LocalMusicScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
+    return Scaffold(
+      appBar: AppBar(title: const Text('LOCAL MUSIC', style: TextStyle(fontWeight: FontWeight.bold))),
+      body: state.localSongs.isEmpty
+        ? const Center(child: Text('No songs found on device'))
+        : ListView.builder(
+            itemCount: state.localSongs.length,
+            padding: const EdgeInsets.all(12),
+            itemBuilder: (context, i) {
+              final song = state.localSongs[i];
+              return Card(
+                color: const Color(0xFF121212),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: ListTile(
+                  leading: const CircleAvatar(backgroundColor: Colors.pinkAccent, child: Icon(Icons.music_note, color: Colors.white)),
+                  title: Text(song.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1),
+                  subtitle: Text(song.artist ?? 'Unknown Artist', style: const TextStyle(fontSize: 12)),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.play_arrow, color: Colors.pinkAccent),
+                    onPressed: () => state.playLocalSong(song),
+                  ),
+                ),
+              );
+            },
+          ),
+      floatingActionButton: state.isPlayingLocal 
+        ? FloatingActionButton(
+            onPressed: () => state.stopLocalMusic(),
+            backgroundColor: Colors.redAccent,
+            child: const Icon(Icons.stop),
+          )
+        : null,
     );
   }
 }
